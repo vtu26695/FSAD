@@ -1,1 +1,105 @@
+AIM:
 
+To develop a simple Employee Management module using Spring Core in a single Java file, demonstrating IoC and DI using annotations.
+
+PROCEDURE:
+1. Create a Maven project in Eclipse
+2. Add Spring dependency
+3. Create a single Java class
+4. Use inner classes for Employee and Service
+5. Apply @Component, @Autowired
+6. Run the program
+
+
+CODE:
+package com.example;
+
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.*;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class MainApp {
+
+    public static void main(String[] args) {
+
+        BeanFactory factory = new AnnotationConfigApplicationContext(AppConfig.class);
+
+        EmployeeService service = factory.getBean(EmployeeService.class);
+
+        service.addEmployee(1, "Arun", "IT");
+        service.addEmployee(2, "Divya", "HR");
+        service.addEmployee(3, "Karthik", "Finance");
+
+        service.displayEmployees();
+    }
+
+    // 🔹 Configuration Class
+    @Configuration
+    @ComponentScan(basePackages = "com.example")
+    static class AppConfig {
+    }
+
+    // 🔹 Employee Class
+    @Component
+    static class Employee {
+        private int id;
+        private String name;
+        private String department;
+
+        public Employee() {}
+
+        public Employee(int id, String name, String department) {
+            this.id = id;
+            this.name = name;
+            this.department = department;
+        }
+
+        public int getId() { return id; }
+        public void setId(int id) { this.id = id; }
+
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+
+        public String getDepartment() { return department; }
+        public void setDepartment(String department) { this.department = department; }
+
+        @Override
+        public String toString() {
+            return id + " - " + name + " - " + department;
+        }
+    }
+
+    // 🔹 Service Class
+    @Component
+    static class EmployeeService {
+
+        private List<Employee> empList = new ArrayList<>();
+
+        @Autowired
+        private Employee employee;
+
+        public void addEmployee(int id, String name, String dept) {
+            Employee emp = new Employee(id, name, dept);
+            empList.add(emp);
+        }
+
+        public void displayEmployees() {
+            System.out.println("Employee List:");
+            for (Employee e : empList) {
+                System.out.println(e);
+            }
+        }
+    }
+}
+
+
+RESULT:
+
+Thus, a simple Employee Management module was successfully developed using Spring Core in a single Java file.
+The concepts of Inversion of Control (IoC) and Dependency Injection (DI) were implemented using @Component and @Autowired annotations.
+The Spring container managed the beans using BeanFactory, and employee data was stored and retrieved from memory using a list.
+The application executed successfully and displayed the employee details as expected.
