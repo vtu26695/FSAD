@@ -1,1 +1,97 @@
+AIM:
 
+To develop a basic Spring MVC application using annotation-based configuration in a simplified single-file approach to handle user requests and display employee details.
+
+PROCEDURE:
+Create a Maven project in Eclipse
+Add Spring MVC dependencies
+Create a single Java class containing:
+Configuration
+Controller
+Create one JSP file for view
+Run on Tomcat server
+Access through browser
+
+
+CODE:
+package com.example.mvc;
+
+import org.springframework.context.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
+import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
+
+@Configuration
+@EnableWebMvc
+@ComponentScan(basePackages = "com.example.mvc")
+public class MainApp extends AbstractAnnotationConfigDispatcherServletInitializer {
+
+    // 🔹 Configure Dispatcher Servlet
+    @Override
+    protected Class<?>[] getServletConfigClasses() {
+        return new Class[]{MainApp.class};
+    }
+
+    @Override
+    protected Class<?>[] getRootConfigClasses() {
+        return null;
+    }
+
+    @Override
+    protected String[] getServletMappings() {
+        return new String[]{"/"};
+    }
+
+    // 🔹 View Resolver
+    @Bean
+    public InternalResourceViewResolver viewResolver() {
+        InternalResourceViewResolver vr = new InternalResourceViewResolver();
+        vr.setPrefix("/WEB-INF/views/");
+        vr.setSuffix(".jsp");
+        return vr;
+    }
+
+    // 🔹 Controller inside same file
+    @Controller
+    static class EmployeeController {
+
+        @RequestMapping("/employee")
+        public String showEmployee(Model model) {
+
+            model.addAttribute("id", 201);
+            model.addAttribute("name", "Divya");
+            model.addAttribute("dept", "IT");
+
+            return "employee";
+        }
+    }
+}
+
+2.employee.jsp
+
+<%@ page language="java" contentType="text/html;charset=UTF-8" %>
+<html>
+<head>
+    <title>Employee Details</title>
+</head>
+<body>
+
+<h2>Employee Details</h2>
+
+<p>ID: ${id}</p>
+<p>Name: ${name}</p>
+<p>Department: ${dept}</p>
+
+</body>
+</html>
+
+
+
+RESULT:
+
+Thus, a basic Spring MVC application was successfully developed using annotation-based configuration in a simplified single-file approach.
+The controller handled user requests and passed data to the view, demonstrating the MVC architecture.
+The application executed successfully and displayed employee details as expected.
