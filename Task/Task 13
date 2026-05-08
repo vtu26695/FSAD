@@ -1,0 +1,173 @@
+AIM:
+
+To enhance a RESTful Spring Boot application by implementing exception handling and input validation using validation annotations, and to provide meaningful error responses through global exception handling.
+
+PROCEDURE:
+Use the existing Spring Boot REST project
+Add validation dependency (spring-boot-starter-validation)
+Apply validation annotations in the model class
+Use @Valid in controller methods
+Create a global exception handler using @RestControllerAdvice
+Handle validation errors and custom exceptions
+Return structured JSON error responses
+Run the application and test using Postman
+
+
+CODE:
+1. pom.xml (Add Validation Dependency)
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-validation</artifactId>
+</dependency>
+
+2. Product.java (Validation Added)
+package com.example.product;
+
+import jakarta.validation.constraints.*;
+
+public class Product {
+
+    private int id;
+
+    @NotBlank(message = "Name cannot be empty")
+    private String name;
+
+    @Positive(message = "Price must be greater than 0")
+    private double price;
+
+    public Product() {}
+
+    public Product(int id, String name, double price) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+    }
+
+    public int getId() { return id; }
+    public String getName() { return name; }
+    public double getPrice() { return price; }
+
+    public void setId(int id) { this.id = id; }
+    public void setName(String name) { this.name = name; }
+    public void setPrice(double price) { this.price = price; }
+}
+
+3. Custom Exception (ResourceNotFoundException.java)
+package com.example.product;
+
+public class ResourceNotFoundException extends RuntimeException {
+    public ResourceNotFoundException(String message) {
+        super(message);
+    }
+}
+
+4. Global Exception Handler
+package com.example.product;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    // Handle validation errors
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidation(MethodArgumentNotValidException ex) {
+
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+            errors.put(error.getField(), error.getDefaultMessage())
+        );
+
+        return errors;
+    }
+
+    // Handle custom exception
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleNotFound(ResourceNotFoundException ex) {
+
+        Map<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        return error;
+    }
+}
+
+5. ProductController.java (Updated)
+package com.example.product;
+
+import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+import java.util.*;
+
+@RestController
+@RequestMapping("/products")
+public class ProductController {
+
+    private List<Product> productList = new ArrayList<>();
+
+    // GET
+    @GetMapping
+    public List<Product> getAllProducts() {
+        return productList;
+    }
+
+    // POST with validation
+    @PostMapping
+    public String addProduct(@Valid @RequestBody Product p) {
+        productList.add(p);
+        return "Product added successfully";
+    }
+
+    // PUT with exception
+    @PutMapping("/{id}")
+    public String updateProduct(@PathVariable int id, @Valid @RequestBody Product p) {
+        for (Product prod : productList) {
+            if (prod.getId() == id) {
+                prod.setName(p.getName());
+                prod.setPrice(p.getPrice());
+                return "Product updated";
+            }
+        }
+        throw new ResourceNotFoundException("Product not found with id " + id);
+    }
+
+    // DELETE with exception
+    @DeleteMapping("/{id}")
+    public String deleteProduct(@PathVariable int id) {
+        Iterator<Product> it = productList.iterator();
+        while (it.hasNext()) {
+            Product p = it.next();
+            if (p.getId() == id) {
+                it.remove();
+                return "Product deleted";
+            }
+        }
+        throw new ResourceNotFoundException("Product not found with id " + id);
+    }
+}
+
+6. Main Application
+package com.example.product;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class ProductApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ProductApplication.class, args);
+    }
+}
+
+
+RESULT:
+
+Thus, exception handling and validation were successfully implemented in the RESTful Spring Boot application.
+Validation annotations ensured correct input data, and global exception handling provided meaningful and structured error responses.
+The application handled errors efficiently and improved reliability.

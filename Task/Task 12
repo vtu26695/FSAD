@@ -1,0 +1,121 @@
+AIM:
+
+To design and develop a RESTful API for Product Management using Spring Boot by implementing HTTP methods such as GET, POST, PUT, and DELETE, and to return responses in JSON format. The APIs are tested using a REST client.
+
+
+PROCEDURE:
+Create a Spring Boot project in Eclipse
+Add dependencies:
+Spring Web
+Spring Data JPA (optional for DB)
+Create Product class (model)
+Create REST Controller using @RestController
+Implement CRUD operations:
+GET → retrieve products
+POST → add product
+PUT → update product
+DELETE → remove product
+Store data in memory (List)
+Run the application
+Test APIs using Postman
+
+
+CODE:
+1. Product.java
+package com.example.product;
+
+public class Product {
+
+    private int id;
+    private String name;
+    private double price;
+
+    public Product() {}
+
+    public Product(int id, String name, double price) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+    }
+
+    public int getId() { return id; }
+    public String getName() { return name; }
+    public double getPrice() { return price; }
+
+    public void setId(int id) { this.id = id; }
+    public void setName(String name) { this.name = name; }
+    public void setPrice(double price) { this.price = price; }
+}
+
+2. ProductController.java
+package com.example.product;
+
+import org.springframework.web.bind.annotation.*;
+import java.util.*;
+
+@RestController
+@RequestMapping("/products")
+public class ProductController {
+
+    private List<Product> productList = new ArrayList<>();
+
+    // GET - Read all products
+    @GetMapping
+    public List<Product> getAllProducts() {
+        return productList;
+    }
+
+    // POST - Add product
+    @PostMapping
+    public String addProduct(@RequestBody Product p) {
+        productList.add(p);
+        return "Product added successfully";
+    }
+
+    // PUT - Update product
+    @PutMapping("/{id}")
+    public String updateProduct(@PathVariable int id, @RequestBody Product p) {
+        for (Product prod : productList) {
+            if (prod.getId() == id) {
+                prod.setName(p.getName());
+                prod.setPrice(p.getPrice());
+                return "Product updated";
+            }
+        }
+        return "Product not found";
+    }
+
+    // DELETE - Remove product
+    @DeleteMapping("/{id}")
+    public String deleteProduct(@PathVariable int id) {
+        Iterator<Product> it = productList.iterator();
+        while (it.hasNext()) {
+            Product p = it.next();
+            if (p.getId() == id) {
+                it.remove();
+                return "Product deleted";
+            }
+        }
+        return "Product not found";
+    }
+}
+
+3. Main Application
+package com.example.product;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class ProductApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ProductApplication.class, args);
+    }
+}
+
+
+RESULT:
+
+Thus, a RESTful API for Product Management was successfully developed using Spring Boot.
+All CRUD operations (GET, POST, PUT, DELETE) were implemented and returned JSON responses.
+The APIs were tested successfully using a REST client, and the expected results were obtained.
