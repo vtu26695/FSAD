@@ -1,0 +1,3 @@
+- This workspace contains a React + Vite inventory control application.
+- Provide guidance to the user for running `npm install` and `npm run dev`.
+- Do not modify files outside the project structure unless requested.
